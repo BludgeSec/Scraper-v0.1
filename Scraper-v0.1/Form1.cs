@@ -68,12 +68,14 @@ namespace Scraper_v0._1
                     {
                         string hostName = GetHostName(ipAddress);
                         long responseTime = reply.RoundtripTime;
+                        string os = GetOperatingSystem(reply);
 
                         // Update the ListView with the active IP address
                         this.Invoke(new Action(() =>
                         {
                             ListViewItem item = new ListViewItem(ipAddress);
                             item.SubItems.Add(hostName);
+                            item.SubItems.Add(os); // Add OS info
                             item.SubItems.Add(responseTime.ToString() + " ms");
                             networkLst.Items.Add(item);
                         }));
@@ -100,12 +102,44 @@ namespace Scraper_v0._1
             }
         }
 
+        // Determine OS based on TTL value
+        private string GetOperatingSystem(PingReply reply)
+        {
+            try
+            {
+                // Start with TTL-based OS detection
+                int ttl = reply.Options.Ttl;
+                string os = "Unknown";
+
+                // Some typical TTL values associated with certain OSs
+                if (ttl <= 64)
+                {
+                    os = "Linux/Unix";  // Linux/Unix usually have TTL of 64
+                }
+                else if (ttl == 128)
+                {
+                    os = "Windows";     // Windows usually have TTL of 128
+                }
+                else if (ttl == 255)
+                {
+                    os = "MacOS";       // MacOS usually has TTL of 255
+                }
+
+                return os;
+            }
+            catch (Exception)
+            {
+                return "Unknown";
+            }
+        }
+
         // Initialize ListView columns
         private void InitializeListView()
         {
             networkLst.View = View.Details;
             networkLst.Columns.Add("IP Address", 100);
             networkLst.Columns.Add("Hostname", 180);
+            networkLst.Columns.Add("Operating System", 180); // New column for OS
             networkLst.Columns.Add("Response Time (ms)", 120);
         }
 
@@ -131,18 +165,6 @@ namespace Scraper_v0._1
                     break;
             }
             return localIP;
-        }
-
-        // Define the event handler method for locIp TextBox
-        private void textBox1_TextChanged(object sender, EventArgs e)
-        {
-            string text = locIp.Text;
-            Console.WriteLine("Text changed: " + text);
-        }
-
-        private void locIp_TextChanged(object sender, EventArgs e)
-        {
-
         }
     }
 }

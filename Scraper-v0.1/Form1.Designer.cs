@@ -51,7 +51,7 @@
             this.locIp.Name = "locIp";
             this.locIp.Size = new System.Drawing.Size(245, 20);
             this.locIp.TabIndex = 1;
-            this.locIp.TextChanged += new System.EventHandler(this.locIp_TextChanged);
+         
             // 
             // scanBtn
             // 
